@@ -115,7 +115,8 @@ class Js extends Asset
             $cspNonce = FilamentAsset::renderCspNonce()->toHtml();
 
             if (filled($cspNonce)) {
-                $htmlString = (string) preg_replace('/<script\b/i', '<script ' . $cspNonce, $htmlString);
+                $htmlString = (string) preg_replace('/<script\b(?![^>]*\bnonce\s*=)/i', '<script ' . $cspNonce, $htmlString);
+            }
             }
 
             return new HtmlString($htmlString);
