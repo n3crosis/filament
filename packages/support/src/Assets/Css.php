@@ -45,7 +45,8 @@ class Css extends Asset
             $cspNonce = FilamentAsset::renderCspNonce()->toHtml();
 
             if (filled($cspNonce)) {
-                $htmlString = (string) preg_replace('/<link\b/i', '<link ' . $cspNonce, $htmlString);
+                $htmlString = (string) preg_replace('/<link\b(?![^>]*\bnonce\s*=)/i', '<link ' . $cspNonce, $htmlString);
+            }
             }
 
             return new HtmlString($htmlString);
