@@ -1,6 +1,7 @@
 <?php
 
 use Filament\Support\Assets\Css;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Tests\TestCase;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -76,6 +77,15 @@ describe('`getHtml()`', function (): void {
         expect($html)->toContain('<link');
         expect($html)->toContain('rel="stylesheet"');
         expect($html)->toContain('data-navigate-track');
+    });
+
+    it('includes a CSP nonce attribute when one is configured', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $css = Css::make('styles')
+            ->package('my-package');
+
+        expect($css->getHtml()->toHtml())->toContain('nonce="abc123"');
     });
 
     it('passes through custom HTML containing `<link`', function (): void {

@@ -32,6 +32,42 @@ public function boot(): void
 }
 ```
 
+## Content Security Policy nonces
+
+Filament supports Content Security Policy (CSP) nonces on script and style elements, but CSP enforcement is opt-in. A common way to add CSP headers to a Laravel app is the [`spatie/laravel-csp`](https://github.com/spatie/laravel-csp) package.
+
+When `spatie/laravel-csp` is installed and configured with nonce support, Filament will automatically use the current request's `app('csp-nonce')` value when rendering Filament-managed assets and Filament's own inline script and style elements. If you generate the nonce yourself, set it for the current request before rendering Filament:
+
+```php
+use Filament\Support\Facades\FilamentAsset;
+
+FilamentAsset::cspNonce($nonce);
+```
+
+If your app also uses Livewire, Vite, or another asset system, make sure all systems use the same request nonce. For example, configure `spatie/laravel-csp` and Livewire according to their CSP documentation, and pass the same nonce value to any Livewire script or style directives that need it.
+
+When writing custom Blade templates, add Filament's nonce attribute to any inline `<script>` or `<style>` tags:
+
+```blade
+<script @filamentCspNonce>
+    // ...
+</script>
+
+<style @filamentCspNonce>
+    /* ... */
+</style>
+```
+
+You may also render the attribute from PHP:
+
+```blade
+<script {{ \Filament\Support\Facades\FilamentAsset::renderCspNonce() }}>
+    // ...
+</script>
+```
+
+The rendered attribute is empty when no nonce is configured, so the same templates can be used with or without CSP.
+
 ### Registering assets for a plugin
 
 When registering assets for a plugin, you should pass the name of the Composer package as the second argument of the `register()` method:
@@ -368,6 +404,12 @@ FilamentAsset::register([
     Js::make('example-local-script', asset('js/local.js')),
 ]);
 ```
+
+### CSP-compatible scripts and styles in plugins
+
+If your plugin registers JavaScript or CSS through `FilamentAsset`, Filament will add the configured CSP nonce automatically when the asset is rendered. For inline scripts or styles in plugin Blade views, use `@filamentCspNonce` on the `<script>` or `<style>` element.
+
+Avoid putting executable JavaScript in Alpine or Livewire HTML attributes when you need strict CSP support. Prefer moving complex inline behavior into a registered JavaScript file or an asynchronous Alpine.js component, and keep Blade attributes limited to data and component initialization.
 
 ### Using Vite-compiled JavaScript files
 

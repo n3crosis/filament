@@ -1,6 +1,7 @@
 <?php
 
 use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Tests\TestCase;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -130,6 +131,15 @@ describe('`getHtml()`', function (): void {
 
         expect($html)->toContain('<script');
         expect($html)->toContain('src=');
+    });
+
+    it('includes a CSP nonce attribute when one is configured', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $js = Js::make('script')
+            ->package('my-package');
+
+        expect($js->getHtml()->toHtml())->toContain('nonce="abc123"');
     });
 
     it('includes `async` attribute when `async()` is set', function (): void {

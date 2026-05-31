@@ -33,6 +33,41 @@ describe('app version', function (): void {
     });
 });
 
+describe('CSP nonce', function (): void {
+    it('returns `null` for `getCspNonce()` by default', function (): void {
+        expect($this->manager->getCspNonce())->toBeNull();
+    });
+
+    it('can set `cspNonce()`', function (): void {
+        $this->manager->cspNonce('abc123');
+
+        expect($this->manager->getCspNonce())->toBe('abc123');
+    });
+
+    it('can clear `cspNonce()` with `null`', function (): void {
+        $this->manager->cspNonce('abc123');
+        $this->manager->cspNonce(null);
+
+        expect($this->manager->getCspNonce())->toBeNull();
+    });
+
+    it('can get the nonce from the Spatie CSP binding', function (): void {
+        app()->instance('csp-nonce', 'spatie-nonce');
+
+        expect($this->manager->getCspNonce())->toBe('spatie-nonce');
+    });
+
+    it('renders a nonce attribute', function (): void {
+        $this->manager->cspNonce('abc123');
+
+        expect($this->manager->renderCspNonce()->toHtml())->toBe('nonce="abc123"');
+    });
+
+    it('renders an empty string when no nonce is available', function (): void {
+        expect($this->manager->renderCspNonce()->toHtml())->toBe('');
+    });
+});
+
 describe('registering assets', function (): void {
     it('can register an `AlpineComponent`', function (): void {
         $this->manager->register([
