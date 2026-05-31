@@ -31,7 +31,7 @@ class CopyAction extends Action
             $copyMessageDurationJs = Js::from($this->getCopyMessageDuration($state));
 
             return <<<JS
-                window.navigator.clipboard.writeText({$copyableState})
+                \$clipboard.writeText({$copyableState})
                 \$tooltip({$copyMessageJs}, {
                     theme: \$store.theme,
                     timeout: {$copyMessageDurationJs},

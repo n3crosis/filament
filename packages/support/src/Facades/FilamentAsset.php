@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array<AlpineComponent> getAlpineComponents(?array<string> $packages = null)
  * @method static string getAlpineComponentSrc(string $id, string $package = 'app')
  * @method static ?string getAppVersion()
+ * @method static void cspNonce(?string $nonce)
  * @method static ?string getCspNonce()
  * @method static array<Font> getFonts(?array<string> $packages = null)
  * @method static array<string, mixed> getScriptData(?array<string> $packages = null)

@@ -452,7 +452,7 @@ FilamentAsset::register([
 
 ### CSP-compatible scripts and styles in plugins
 
-If your plugin registers JavaScript or CSS through `FilamentAsset`, Filament will add the configured CSP nonce automatically when the asset is rendered. For inline scripts or styles in plugin Blade views, use `@filamentCspNonce` on the `<script>` or `<style>` element.
+If your plugin registers JavaScript or CSS through `FilamentAsset` using file paths or URLs, Filament will add the configured CSP nonce automatically when the asset is rendered. Assets registered with custom HTML (via `Js::html()` or `Css::html()`) are passed through unchanged, so you are responsible for adding the nonce attribute yourself in those cases. For inline scripts or styles in plugin Blade views, use `@filamentCspNonce` on the `<script>` or `<style>` element.
 
 Avoid putting executable JavaScript in Alpine or Livewire HTML attributes when you need strict CSP support. Prefer moving complex inline behavior into a registered JavaScript file or an asynchronous Alpine.js component, and keep Blade attributes limited to data and component initialization.
 

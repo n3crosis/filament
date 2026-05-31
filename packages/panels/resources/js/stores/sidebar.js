@@ -108,7 +108,7 @@ export default () => ({
     },
 
     closeIfMobile() {
-        if (window.innerWidth < breakpoint) {
+        if (window.innerWidth <= breakpoint) {
             this.close()
         }
     },
