@@ -111,7 +111,14 @@ class Js extends Asset
         $html = $this->html;
 
         if (str($html)->contains('<script')) {
-            return $html instanceof Htmlable ? $html : new HtmlString($html);
+            $htmlString = $html instanceof Htmlable ? $html->toHtml() : (string) $html;
+            $cspNonce = FilamentAsset::renderCspNonce()->toHtml();
+
+            if (filled($cspNonce)) {
+                $htmlString = (string) preg_replace('/<script\b/i', '<script ' . $cspNonce, $htmlString);
+            }
+
+            return new HtmlString($htmlString);
         }
 
         $html ??= $this->getSrc();

@@ -41,7 +41,14 @@ class Css extends Asset
         $html = value($this->html);
 
         if (str($html)->contains('<link')) {
-            return $html instanceof Htmlable ? $html : new HtmlString($html);
+            $htmlString = $html instanceof Htmlable ? $html->toHtml() : (string) $html;
+            $cspNonce = FilamentAsset::renderCspNonce()->toHtml();
+
+            if (filled($cspNonce)) {
+                $htmlString = (string) preg_replace('/<link\b/i', '<link ' . $cspNonce, $htmlString);
+            }
+
+            return new HtmlString($htmlString);
         }
 
         $html ??= $this->getHref();

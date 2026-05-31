@@ -186,6 +186,25 @@ describe('`getHtml()`', function (): void {
         $js = Js::make('script')
             ->html($htmlable);
 
-        expect($js->getHtml())->toBe($htmlable);
+        expect($js->getHtml()->toHtml())->toBe('<script src="/custom.js"></script>');
+    });
+
+    it('injects the CSP nonce into custom HTML `<script>` tags', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $js = Js::make('script')
+            ->html('<script src="/custom.js"></script>');
+
+        expect($js->getHtml()->toHtml())->toContain('<script nonce="abc123"');
+    });
+
+    it('injects the CSP nonce into custom `Htmlable` `<script>` tags', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $htmlable = new HtmlString('<script src="/custom.js"></script>');
+        $js = Js::make('script')
+            ->html($htmlable);
+
+        expect($js->getHtml()->toHtml())->toContain('<script nonce="abc123"');
     });
 });

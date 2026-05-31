@@ -102,7 +102,26 @@ describe('`getHtml()`', function (): void {
         $css = Css::make('styles')
             ->html($htmlable);
 
-        expect($css->getHtml())->toBe($htmlable);
+        expect($css->getHtml()->toHtml())->toBe('<link href="/custom.css" rel="stylesheet">');
+    });
+
+    it('injects the CSP nonce into custom HTML `<link>` tags', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $css = Css::make('styles')
+            ->html('<link href="/custom.css" rel="stylesheet">');
+
+        expect($css->getHtml()->toHtml())->toContain('<link nonce="abc123"');
+    });
+
+    it('injects the CSP nonce into custom `Htmlable` `<link>` tags', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $htmlable = new HtmlString('<link href="/custom.css" rel="stylesheet">');
+        $css = Css::make('styles')
+            ->html($htmlable);
+
+        expect($css->getHtml()->toHtml())->toContain('<link nonce="abc123"');
     });
 
     it('wraps custom URL string in a `<link>` tag', function (): void {
