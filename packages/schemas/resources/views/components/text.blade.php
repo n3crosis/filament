@@ -29,7 +29,7 @@
         :size="$size instanceof \Filament\Support\Enums\TextSize ? $size->value : $size"
         :x-on:click="
             $isCopyable ? '
-                window.navigator.clipboard.writeText(' . \Illuminate\Support\Js::from($copyableState) . ')
+                $clipboard.writeText(' . \Illuminate\Support\Js::from($copyableState) . ')
                 $tooltip(' . \Illuminate\Support\Js::from($copyMessage) . ', {
                     theme: $store.theme,
                     timeout: ' . \Illuminate\Support\Js::from($copyMessageDuration) . ',
@@ -46,7 +46,7 @@
     <span
         @if ($isCopyable)
             x-on:click="
-                window.navigator.clipboard.writeText(@js($copyableState))
+                $clipboard.writeText(@js($copyableState))
                 $tooltip(@js($copyMessage), {
                     theme: $store.theme,
                     timeout: @js($copyMessageDuration),

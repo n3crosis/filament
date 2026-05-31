@@ -70,11 +70,9 @@ The rendered attribute is empty when no nonce is configured, so the same templat
 
 ### Required CSP directives
 
-Configuring nonces (above) removes the need for `'unsafe-inline'` in `script-src` and `style-src`. However, Filament has one additional hard requirement: **`'unsafe-eval'` must be present in `script-src`**.
+Configuring nonces (above) removes the need for `'unsafe-inline'` in `script-src` and `style-src`. However, by default Filament uses Alpine.js v3's standard build (bundled by Livewire), which evaluates reactive expressions using the `Function()` constructor at runtime. The browser blocks those calls under a strict CSP unless **`'unsafe-eval'` is present in `script-src`**.
 
-This is because Alpine.js v3 (bundled by Livewire 4.x and used throughout Filament for all interactive UI — dropdowns, modals, forms, and more) evaluates reactive expressions such as `x-data="{ open: false }"` and `x-on:click="..."` using the `Function()` constructor at runtime. The browser blocks those calls under a strict CSP unless `'unsafe-eval'` is allowed. This is not a Filament-specific limitation; it is a property of the Alpine.js v3 standard build. See [Livewire's CSP documentation](https://livewire.laravel.com/docs/4.x/csp) for the full picture of what Livewire and Alpine require.
-
-A minimal working `Content-Security-Policy` for a Filament panel (using nonces) therefore looks like:
+A minimal working `Content-Security-Policy` for a Filament panel (using nonces and the standard Alpine build) looks like:
 
 ```
 Content-Security-Policy:
@@ -88,20 +86,31 @@ Content-Security-Policy:
   base-uri 'self';
 ```
 
-- `'unsafe-eval'` is required for Alpine.js; omitting it will break all interactive Filament components.
+- `'unsafe-eval'` is required for Alpine.js standard build; omitting it will break all interactive Filament components.
 - `ws:`/`wss:` in `connect-src` is only needed if you enable Livewire's real-time broadcasting.
 - `blob:` in `img-src` is needed for in-browser file-upload previews.
 - `data:` in `font-src` may be needed if you use a custom font with embedded base64 glyphs.
 
-<Aside variant="warning">
-    A CSP without `'unsafe-eval'` will silently break Alpine.js. Every interactive Filament component — dropdowns, modals, form inputs, and more — depends on Alpine. Do not omit `'unsafe-eval'`.
+#### Strict CSP without `'unsafe-eval'` (Alpine CSP build)
 
-    Alpine does ship an alternative CSP-friendly build (`@alpinejs/csp`) that avoids `eval` entirely, but switching to it **does not make Filament CSP-compatible without `'unsafe-eval'`**, because that build drops two features Filament's own Blade views rely on:
+If you need a strict CSP that omits `'unsafe-eval'`, you can configure Livewire to use [Alpine's CSP build](https://alpinejs.dev/advanced/csp) (`@alpinejs/csp`) instead of the standard Alpine. This build avoids `Function()` evaluation entirely. Filament's own Blade views and JavaScript have been written to be compatible with the CSP build — they avoid `x-html` and do not reference global `window.*` variables from Alpine attribute expressions.
 
-    - **HTML Injection (`x-html`)** — The `@alpinejs/csp` build removes the `x-html` directive entirely, but Filament uses it in several core views (e.g. tab badges and column-manager labels).
-    - **Global Variables and Functions** — The `@alpinejs/csp` build isolates expression scope, so Alpine expressions can no longer reference global `window.*` values. Filament's Blade views reference globals such as `window.matchMedia`, `window.tippy`, and `window.Echo` directly inside Alpine attribute expressions.
+Follow [Livewire's CSP documentation](https://livewire.laravel.com/docs/4.x/csp) to switch to the CSP build. With the CSP build active, you can remove `'unsafe-eval'` from your policy:
 
-    Until Filament rewrites these views to remove both patterns, `'unsafe-eval'` remains the only supported option.
+```
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-{random}';
+  style-src 'self' 'nonce-{random}';
+  img-src 'self' data: blob:;
+  font-src 'self' data:;
+  connect-src 'self' ws: wss:;
+  object-src 'none';
+  base-uri 'self';
+```
+
+<Aside variant="info">
+    If you register custom JavaScript for your own Filament plugins or panels, make sure that code is also compatible with Alpine's CSP build. Avoid Alpine attribute expressions that reference `window.*` globals or use `x-html`; instead, register Alpine data components or magics in `.js` files.
 </Aside>
 
 ### Registering assets for a plugin

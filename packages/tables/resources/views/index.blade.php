@@ -740,11 +740,7 @@
                         }}
 
                         <span
-                            x-text="
-                                window.pluralize(@js(__('filament-tables::table.selection_indicator.selected_count')), getSelectedRecordsCount(), {
-                                    count: new Intl.NumberFormat(@js(str_replace('_', '-', app()->getLocale()))).format(getSelectedRecordsCount()),
-                                })
-                            "
+                            x-text="getSelectionText(@js(__('filament-tables::table.selection_indicator.selected_count')), @js(str_replace('_', '-', app()->getLocale())))"
                         ></span>
                     </div>
 

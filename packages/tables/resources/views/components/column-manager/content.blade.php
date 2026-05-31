@@ -47,7 +47,7 @@
                                 />
                             @endif
 
-                            <span x-html="column.label"></span>
+                            <span x-effect="$el.innerHTML = column.label"></span>
                         </label>
 
                         @if ($hasReorderableColumns)
@@ -95,7 +95,7 @@
                                         @endif
 
                                         <span
-                                            x-html="groupColumn.label"
+                                            x-effect="$el.innerHTML = groupColumn.label"
                                         ></span>
                                     </label>
 
@@ -129,7 +129,7 @@
                             />
                         @endif
 
-                        <span x-html="column.label"></span>
+                        <span x-effect="$el.innerHTML = column.label"></span>
                     </label>
 
                     @if ($hasReorderableColumns)

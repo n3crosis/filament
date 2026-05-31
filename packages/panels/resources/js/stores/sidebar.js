@@ -107,6 +107,12 @@ export default () => ({
         }
     },
 
+    closeIfMobile() {
+        if (window.innerWidth < breakpoint) {
+            this.close()
+        }
+    },
+
     open() {
         this.isOpen = true
 

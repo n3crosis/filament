@@ -104,7 +104,7 @@
                 x-init="
                     let tooltip = {{ $alpineDeferredBadgeData }}?.badgeTooltip
                     if (tooltip) {
-                        window.tippy?.($el, {
+                        $tippy({
                             content: tooltip,
                             theme: $store.theme,
                         })
@@ -118,7 +118,7 @@
                     "
                 >
                     <span
-                        x-html="{{ $alpineDeferredBadgeData }}.badgeIconHtml"
+                        x-effect="$el.innerHTML = {{ $alpineDeferredBadgeData }}?.badgeIconHtml ?? ''"
                     ></span>
                 </template>
 
@@ -136,7 +136,7 @@
                     "
                 >
                     <span
-                        x-html="{{ $alpineDeferredBadgeData }}.badgeIconHtml"
+                        x-effect="$el.innerHTML = {{ $alpineDeferredBadgeData }}?.badgeIconHtml ?? ''"
                     ></span>
                 </template>
             </span>
