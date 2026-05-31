@@ -68,6 +68,35 @@ You may also render the attribute from PHP:
 
 The rendered attribute is empty when no nonce is configured, so the same templates can be used with or without CSP.
 
+### Required CSP directives
+
+Configuring nonces (above) removes the need for `'unsafe-inline'` in `script-src` and `style-src`. However, Filament has one additional hard requirement: **`'unsafe-eval'` must be present in `script-src`**.
+
+This is because Alpine.js v3 (bundled by Livewire 4.x and used throughout Filament for all interactive UI — dropdowns, modals, forms, and more) evaluates reactive expressions such as `x-data="{ open: false }"` and `x-on:click="..."` using the `Function()` constructor at runtime. The browser blocks those calls under a strict CSP unless `'unsafe-eval'` is allowed. This is not a Filament-specific limitation; it is a property of the Alpine.js v3 standard build. See [Livewire's CSP documentation](https://livewire.laravel.com/docs/4.x/csp) for the full picture of what Livewire and Alpine require.
+
+A minimal working `Content-Security-Policy` for a Filament panel (using nonces) therefore looks like:
+
+```
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-{random}' 'unsafe-eval';
+  style-src 'self' 'nonce-{random}';
+  img-src 'self' data: blob:;
+  font-src 'self' data:;
+  connect-src 'self' ws: wss:;
+  object-src 'none';
+  base-uri 'self';
+```
+
+- `'unsafe-eval'` is required for Alpine.js; omitting it will break all interactive Filament components.
+- `ws:`/`wss:` in `connect-src` is only needed if you enable Livewire's real-time broadcasting.
+- `blob:` in `img-src` is needed for in-browser file-upload previews.
+- `data:` in `font-src` may be needed if you use a custom font with embedded base64 glyphs.
+
+<Aside variant="warning">
+    A CSP without `'unsafe-eval'` will silently break Alpine.js. Every interactive Filament component — dropdowns, modals, form inputs, and more — depends on Alpine. Do not omit `'unsafe-eval'` unless you have replaced Livewire's bundled Alpine with [Alpine's CSP build](https://alpinejs.dev/advanced/csp) and ensured that every `x-data`, `x-on:*`, and expression attribute in Filament's Blade views is compatible with it, which is not supported out of the box.
+</Aside>
+
 ### Registering assets for a plugin
 
 When registering assets for a plugin, you should pass the name of the Composer package as the second argument of the `register()` method:
