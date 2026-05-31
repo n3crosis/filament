@@ -134,7 +134,7 @@ class SetUpAppAuthenticationAction
                                     ->label(__('filament-panels::auth/multi-factor/recovery-codes-modal-content.actions.copy.label'))
                                     ->link()
                                     ->alpineClickHandler('
-                                                    window.navigator.clipboard.writeText(' . Js::from(implode(PHP_EOL, $recoveryCodes)) . ')
+                                                   $clipboard.writeText(' . Js::from(implode(PHP_EOL, $recoveryCodes)) . ')
                                                     $tooltip(' . Js::from(__('filament-panels::auth/multi-factor/recovery-codes-modal-content.messages.copied')) . ', {
                                                         theme: $store.theme,
                                                     })
