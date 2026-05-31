@@ -201,6 +201,10 @@ class SupportServiceProvider extends PackageServiceProvider
             return "<?php echo \Filament\Support\Facades\FilamentAsset::renderStyles({$expression}) ?>";
         });
 
+        Blade::directive('filamentCspNonce', function (): string {
+            return "<?php echo \Filament\Support\Facades\FilamentAsset::renderCspNonce() ?>";
+        });
+
         Blade::extend(function ($view) {
             return preg_replace('/\s*@trim\s*/m', '', $view);
         });

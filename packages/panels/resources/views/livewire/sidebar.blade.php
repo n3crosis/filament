@@ -131,7 +131,7 @@
                 @endforeach
             </ul>
 
-            <script>
+            <script @filamentCspNonce>
                 var collapsedGroups = JSON.parse(
                     localStorage.getItem('collapsedGroups'),
                 )

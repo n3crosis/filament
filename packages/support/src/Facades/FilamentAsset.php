@@ -9,6 +9,7 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Font;
 use Filament\Support\Assets\Js;
 use Filament\Support\Assets\Theme;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Facade;
 
 /**
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array<AlpineComponent> getAlpineComponents(?array<string> $packages = null)
  * @method static string getAlpineComponentSrc(string $id, string $package = 'app')
  * @method static ?string getAppVersion()
+ * @method static ?string getCspNonce()
  * @method static array<Font> getFonts(?array<string> $packages = null)
  * @method static array<string, mixed> getScriptData(?array<string> $packages = null)
  * @method static string getScriptSrc(string $id, string $package = 'app')
@@ -25,6 +27,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static Theme | null getTheme(string $id)
  * @method static array<string, Theme> getThemes()
  * @method static string renderScripts(?array<string> $packages = null, bool $withCore = true)
+ * @method static Htmlable renderCspNonce()
  * @method static string renderStyles(?array<string> $packages = null)
  *
  * @see AssetManager

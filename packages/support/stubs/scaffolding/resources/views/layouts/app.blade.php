@@ -9,7 +9,7 @@
 
         <title>{{ config('app.name') }}</title>
 
-        <style>
+        <style @filamentCspNonce>
             [x-cloak] {
                 display: none !important;
             }

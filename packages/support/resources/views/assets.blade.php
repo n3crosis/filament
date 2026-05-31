@@ -1,5 +1,5 @@
 @if (isset($data))
-    <script>
+    <script {{ \Filament\Support\Facades\FilamentAsset::renderCspNonce() }}>
         window.filamentData = @js($data)
     </script>
 @endif
@@ -10,7 +10,7 @@
     @endif
 @endforeach
 
-<style>
+<style {{ \Filament\Support\Facades\FilamentAsset::renderCspNonce() }}>
     :root {
         @foreach ($cssVariables ?? [] as $cssVariableName => $cssVariableValue) --{{ $cssVariableName }}:{{ $cssVariableValue }}; @endforeach
     }

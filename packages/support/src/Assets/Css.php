@@ -3,6 +3,7 @@
 namespace Filament\Support\Assets;
 
 use Closure;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 
@@ -48,6 +49,7 @@ class Css extends Asset
         return new HtmlString("<link
             href=\"{$html}\"
             rel=\"stylesheet\"
+            " . FilamentAsset::renderCspNonce() . "
             data-navigate-track
         />");
     }
