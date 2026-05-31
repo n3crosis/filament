@@ -112,6 +112,14 @@ export default ({
         return this.selectedRecords.size
     },
 
+    getSelectionText(string, locale) {
+        const count = this.getSelectedRecordsCount()
+
+        return window.pluralize(string, count, {
+            count: new Intl.NumberFormat(locale).format(count),
+        })
+    },
+
     getRecordsOnPage() {
         const keys = []
 

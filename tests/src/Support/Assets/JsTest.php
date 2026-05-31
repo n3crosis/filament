@@ -1,6 +1,7 @@
 <?php
 
 use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Tests\TestCase;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -132,6 +133,15 @@ describe('`getHtml()`', function (): void {
         expect($html)->toContain('src=');
     });
 
+    it('includes a CSP nonce attribute when one is configured', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $js = Js::make('script')
+            ->package('my-package');
+
+        expect($js->getHtml()->toHtml())->toContain('nonce="abc123"');
+    });
+
     it('includes `async` attribute when `async()` is set', function (): void {
         $js = Js::make('script')
             ->package('my-package')
@@ -176,6 +186,25 @@ describe('`getHtml()`', function (): void {
         $js = Js::make('script')
             ->html($htmlable);
 
-        expect($js->getHtml())->toBe($htmlable);
+        expect($js->getHtml()->toHtml())->toBe('<script src="/custom.js"></script>');
+    });
+
+    it('injects the CSP nonce into custom HTML `<script>` tags', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $js = Js::make('script')
+            ->html('<script src="/custom.js"></script>');
+
+        expect($js->getHtml()->toHtml())->toContain('<script nonce="abc123"');
+    });
+
+    it('injects the CSP nonce into custom `Htmlable` `<script>` tags', function (): void {
+        FilamentAsset::cspNonce('abc123');
+
+        $htmlable = new HtmlString('<script src="/custom.js"></script>');
+        $js = Js::make('script')
+            ->html($htmlable);
+
+        expect($js->getHtml()->toHtml())->toContain('<script nonce="abc123"');
     });
 });

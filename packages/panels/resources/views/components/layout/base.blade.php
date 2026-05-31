@@ -39,7 +39,7 @@
 
         {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::STYLES_BEFORE, scopes: $renderHookScopes) }}
 
-        <style>
+        <style @filamentCspNonce>
             [x-cloak=''],
             [x-cloak='x-cloak'],
             [x-cloak='1'] {
@@ -73,7 +73,7 @@
         {{ filament()->getMonoFontHtml() }}
         {{ filament()->getSerifFontHtml() }}
 
-        <style>
+        <style @filamentCspNonce>
             :root {
                 --font-family: '{!! filament()->getFontFamily() !!}';
                 --mono-font-family: '{!! filament()->getMonoFontFamily() !!}';
@@ -93,15 +93,15 @@
         {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::STYLES_AFTER, scopes: $renderHookScopes) }}
 
         @if (! filament()->hasDarkMode())
-            <script>
+            <script @filamentCspNonce>
                 localStorage.setItem('theme', 'light')
             </script>
         @elseif (filament()->hasDarkModeForced())
-            <script>
+            <script @filamentCspNonce>
                 localStorage.setItem('theme', 'dark')
             </script>
         @else
-            <script>
+            <script @filamentCspNonce>
                 const loadDarkMode = () => {
                     window.theme = localStorage.getItem('theme') ?? @js(filament()->getDefaultThemeMode()->value)
 
@@ -145,7 +145,7 @@
         @filamentScripts(withCore: true)
 
         @if (filament()->hasBroadcasting() && config('filament.broadcasting.echo'))
-            <script data-navigate-once>
+            <script @filamentCspNonce data-navigate-once>
                 window.Echo = new window.EchoFactory(@js(config('filament.broadcasting.echo')))
 
                 window.dispatchEvent(new CustomEvent('EchoLoaded'))
@@ -153,7 +153,7 @@
         @endif
 
         @if (filament()->hasDarkMode() && (! filament()->hasDarkModeForced()))
-            <script>
+            <script @filamentCspNonce>
                 loadDarkMode()
             </script>
         @endif

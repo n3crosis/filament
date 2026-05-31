@@ -153,7 +153,7 @@ class ToolbarButtonGroup extends ViewComponent implements HasEmbeddedView
              class="<?= $wrapperClass ?>">
 
             <button <?= $triggerAttributes->toHtml() ?>>
-                <span x-html="triggerContent"><?= $defaultContentHtml ?></span>
+                <span x-effect="$el.innerHTML = triggerContent"><?= $defaultContentHtml ?></span>
                 <?= $chevronSvg ?>
             </button>
 

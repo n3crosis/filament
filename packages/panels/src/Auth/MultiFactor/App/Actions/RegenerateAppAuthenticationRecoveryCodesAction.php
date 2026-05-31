@@ -112,7 +112,7 @@ class RegenerateAppAuthenticationRecoveryCodesAction
                                     ->label(__('filament-panels::auth/multi-factor/recovery-codes-modal-content.actions.copy.label'))
                                     ->link()
                                     ->alpineClickHandler('
-                                        window.navigator.clipboard.writeText(' . Js::from(implode(PHP_EOL, $arguments['recoveryCodes'])) . ')
+                                       $clipboard.writeText(' . Js::from(implode(PHP_EOL, $arguments['recoveryCodes'])) . ')
                                         $tooltip(' . Js::from(__('filament-panels::auth/multi-factor/recovery-codes-modal-content.messages.copied')) . ', {
                                             theme: $store.theme,
                                         })

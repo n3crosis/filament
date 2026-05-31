@@ -170,7 +170,7 @@
                 x-init="
                     let tooltip = {{ $alpineDeferredBadgeData }}?.badgeTooltip
                     if (tooltip) {
-                        window.tippy?.($el, {
+                        $tippy({
                             content: tooltip,
                             theme: $store.theme,
                         })

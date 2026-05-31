@@ -32,6 +32,90 @@ public function boot(): void
 }
 ```
 
+## Content Security Policy nonces
+
+Filament supports Content Security Policy (CSP) nonces on script and style elements, but CSP enforcement is opt-in. A common way to add CSP headers to a Laravel app is the [`spatie/laravel-csp`](https://github.com/spatie/laravel-csp) package.
+
+When `spatie/laravel-csp` is installed and configured with nonce support, Filament will automatically use the current request's `app('csp-nonce')` value when rendering Filament-managed assets and Filament's own inline script and style elements. If you generate the nonce yourself, set it for the current request before rendering Filament:
+
+```php
+use Filament\Support\Facades\FilamentAsset;
+
+FilamentAsset::cspNonce($nonce);
+```
+
+If your app also uses Livewire, Vite, or another asset system, make sure all systems use the same request nonce. For example, configure `spatie/laravel-csp` and Livewire according to their CSP documentation, and pass the same nonce value to any Livewire script or style directives that need it.
+
+When writing custom Blade templates, add Filament's nonce attribute to any inline `<script>` or `<style>` tags:
+
+```blade
+<script @filamentCspNonce>
+    // ...
+</script>
+
+<style @filamentCspNonce>
+    /* ... */
+</style>
+```
+
+You may also render the attribute from PHP:
+
+```blade
+<script {{ \Filament\Support\Facades\FilamentAsset::renderCspNonce() }}>
+    // ...
+</script>
+```
+
+The rendered attribute is empty when no nonce is configured, so the same templates can be used with or without CSP.
+
+### Required CSP directives
+
+Configuring nonces (above) removes the need for `'unsafe-inline'` in `script-src` and covers inline `<style>` **elements** in `style-src`. However, nonces apply only to `<script>` and `<style>` **elements** — they do not cover inline `style="..."` **attributes**. Filament renders some inline style attributes (for example in action modals and certain form components), so your policy must also include `style-src-attr 'unsafe-inline'` to allow those. In addition, by default Filament uses Alpine.js v3's standard build (bundled by Livewire), which evaluates reactive expressions using the `Function()` constructor at runtime. The browser blocks those calls under a strict CSP unless **`'unsafe-eval'` is present in `script-src`**.
+
+A minimal working `Content-Security-Policy` for a Filament panel (using nonces and the standard Alpine build) looks like:
+
+```
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-{random}' 'unsafe-eval';
+  style-src 'self' 'nonce-{random}';
+  style-src-attr 'unsafe-inline';
+  img-src 'self' data: blob:;
+  font-src 'self' data:;
+  connect-src 'self' ws: wss:;
+  object-src 'none';
+  base-uri 'self';
+```
+
+- `'unsafe-eval'` is required for Alpine.js standard build; omitting it will break all interactive Filament components.
+- `style-src-attr 'unsafe-inline'` is required because Filament renders inline `style="..."` attributes that are not covered by nonces.
+- `ws:`/`wss:` in `connect-src` is only needed if you enable Livewire's real-time broadcasting.
+- `blob:` in `img-src` is needed for in-browser file-upload previews.
+- `data:` in `font-src` may be needed if you use a custom font with embedded base64 glyphs.
+
+#### Strict CSP without `'unsafe-eval'` (Alpine CSP build)
+
+If you need a strict CSP that omits `'unsafe-eval'`, you can configure Livewire to use [Alpine's CSP build](https://alpinejs.dev/advanced/csp) (`@alpinejs/csp`) instead of the standard Alpine. This build avoids `Function()` evaluation entirely. Filament's own Blade views and JavaScript have been written to be compatible with the CSP build — they avoid `x-html` and do not reference global `window.*` variables from Alpine attribute expressions.
+
+Follow [Livewire's CSP documentation](https://livewire.laravel.com/docs/4.x/csp) to switch to the CSP build. With the CSP build active, you can remove `'unsafe-eval'` from your policy:
+
+```
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-{random}';
+  style-src 'self' 'nonce-{random}';
+  style-src-attr 'unsafe-inline';
+  img-src 'self' data: blob:;
+  font-src 'self' data:;
+  connect-src 'self' ws: wss:;
+  object-src 'none';
+  base-uri 'self';
+```
+
+<Aside variant="info">
+    If you register custom JavaScript for your own Filament plugins or panels, make sure that code is also compatible with Alpine's CSP build. Avoid Alpine attribute expressions that reference `window.*` globals or use `x-html`; instead, register Alpine data components or magics in `.js` files.
+</Aside>
+
 ### Registering assets for a plugin
 
 When registering assets for a plugin, you should pass the name of the Composer package as the second argument of the `register()` method:
@@ -368,6 +452,12 @@ FilamentAsset::register([
     Js::make('example-local-script', asset('js/local.js')),
 ]);
 ```
+
+### CSP-compatible scripts and styles in plugins
+
+If your plugin registers JavaScript or CSS through `FilamentAsset` using file paths, URLs, or custom HTML (via `Js::html()` or `Css::html()`), Filament will add the configured CSP nonce automatically when the asset is rendered. For inline scripts or styles in plugin Blade views, use `@filamentCspNonce` on the `<script>` or `<style>` element.
+
+Avoid putting executable JavaScript in Alpine or Livewire HTML attributes when you need strict CSP support. Prefer moving complex inline behavior into a registered JavaScript file or an asynchronous Alpine.js component, and keep Blade attributes limited to data and component initialization.
 
 ### Using Vite-compiled JavaScript files
 

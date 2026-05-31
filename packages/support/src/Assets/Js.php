@@ -2,6 +2,7 @@
 
 namespace Filament\Support\Assets;
 
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentView;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -110,7 +111,15 @@ class Js extends Asset
         $html = $this->html;
 
         if (str($html)->contains('<script')) {
-            return $html instanceof Htmlable ? $html : new HtmlString($html);
+            $htmlString = $html instanceof Htmlable ? $html->toHtml() : (string) $html;
+            $cspNonce = FilamentAsset::renderCspNonce()->toHtml();
+
+            if (filled($cspNonce)) {
+                $htmlString = (string) preg_replace('/<script\b(?![^>]*\bnonce\s*=)/i', '<script ' . $cspNonce, $htmlString);
+            }
+            }
+
+            return new HtmlString($htmlString);
         }
 
         $html ??= $this->getSrc();
@@ -119,6 +128,7 @@ class Js extends Asset
         $defer = $this->isDeferred() ? 'defer' : '';
         $module = $this->isModule() ? 'type="module"' : '';
         $extraAttributesHtml = $this->getExtraAttributesHtml();
+        $cspNonce = FilamentAsset::renderCspNonce()->toHtml();
 
         $hasSpaMode = FilamentView::hasSpaMode();
 
@@ -132,6 +142,7 @@ class Js extends Asset
                 {$async}
                 {$defer}
                 {$module}
+                {$cspNonce}
                 {$extraAttributesHtml}
                 {$navigateOnce}
                 {$navigateTrack}

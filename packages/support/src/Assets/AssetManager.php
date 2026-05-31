@@ -4,7 +4,9 @@ namespace Filament\Support\Assets;
 
 use Filament\Support\Colors\ColorManager;
 use Filament\Support\Facades\FilamentColor;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\HtmlString;
 use LogicException;
 
 class AssetManager
@@ -46,6 +48,8 @@ class AssetManager
 
     protected ?string $appVersion = null;
 
+    protected ?string $cspNonce = null;
+
     public function appVersion(?string $version): void
     {
         $this->appVersion = $version;
@@ -54,6 +58,37 @@ class AssetManager
     public function getAppVersion(): ?string
     {
         return $this->appVersion;
+    }
+
+    public function cspNonce(?string $nonce): void
+    {
+        $this->cspNonce = $nonce;
+    }
+
+    public function getCspNonce(): ?string
+    {
+        if (filled($this->cspNonce)) {
+            return $this->cspNonce;
+        }
+
+        if (! app()->bound('csp-nonce')) {
+            return null;
+        }
+
+        $nonce = app('csp-nonce');
+
+        return is_string($nonce) && filled($nonce) ? $nonce : null;
+    }
+
+    public function renderCspNonce(): Htmlable
+    {
+        $nonce = $this->getCspNonce();
+
+        if (blank($nonce)) {
+            return new HtmlString('');
+        }
+
+        return new HtmlString('nonce="' . e($nonce) . '"');
     }
 
     /**

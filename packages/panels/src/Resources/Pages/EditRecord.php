@@ -355,8 +355,8 @@ class EditRecord extends Page
             ->label(__('filament-panels::resources/pages/edit-record.form.actions.cancel.label'))
             ->alpineClickHandler(
                 FilamentView::hasSpaMode($url)
-                    ? 'document.referrer ? window.history.back() : Livewire.navigate(' . Js::from($url) . ')'
-                    : 'document.referrer ? window.history.back() : (window.location.href = ' . Js::from($url) . ')',
+                    ? 'document.referrer ? history.back() : Livewire.navigate(' . Js::from($url) . ')'
+                    : 'document.referrer ? history.back() : (location.href = ' . Js::from($url) . ')',
             )
             ->color('gray');
     }

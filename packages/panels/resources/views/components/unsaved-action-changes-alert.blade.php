@@ -1,6 +1,6 @@
 @if (filament()->hasUnsavedChangesAlerts())
     @script
-        <script>
+        <script @filamentCspNonce>
             setUpUnsavedActionChangesAlert({
                 resolveLivewireComponentUsing: () => @this,
                 $wire,

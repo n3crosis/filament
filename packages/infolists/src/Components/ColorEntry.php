@@ -89,7 +89,7 @@ class ColorEntry extends Entry implements HasEmbeddedView
                     ->merge([
                         'x-on:click' => $isCopyable
                             ? <<<JS
-                            window.navigator.clipboard.writeText({$copyableStateJs})
+                            \$clipboard.writeText({$copyableStateJs})
                             \$tooltip({$copyMessageJs}, {
                                 theme: \$store.theme,
                                 timeout: {$copyMessageDurationJs},

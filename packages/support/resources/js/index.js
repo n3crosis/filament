@@ -22,6 +22,9 @@ document.addEventListener('alpine:init', () => {
     window.Alpine.data('filamentDropdown', dropdown)
     window.Alpine.data('filamentFormButton', formButton)
     window.Alpine.data('filamentModal', modal)
+
+    window.Alpine.magic('tippy', (el) => (options) => window.tippy?.(el, options))
+    window.Alpine.magic('clipboard', () => navigator.clipboard)
 })
 
 window.jsMd5 = md5

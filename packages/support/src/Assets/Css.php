@@ -3,6 +3,7 @@
 namespace Filament\Support\Assets;
 
 use Closure;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 
@@ -40,7 +41,15 @@ class Css extends Asset
         $html = value($this->html);
 
         if (str($html)->contains('<link')) {
-            return $html instanceof Htmlable ? $html : new HtmlString($html);
+            $htmlString = $html instanceof Htmlable ? $html->toHtml() : (string) $html;
+            $cspNonce = FilamentAsset::renderCspNonce()->toHtml();
+
+            if (filled($cspNonce)) {
+                $htmlString = (string) preg_replace('/<link\b(?![^>]*\bnonce\s*=)/i', '<link ' . $cspNonce, $htmlString);
+            }
+            }
+
+            return new HtmlString($htmlString);
         }
 
         $html ??= $this->getHref();
@@ -48,6 +57,7 @@ class Css extends Asset
         return new HtmlString("<link
             href=\"{$html}\"
             rel=\"stylesheet\"
+            " . FilamentAsset::renderCspNonce()->toHtml() . "
             data-navigate-track
         />");
     }
