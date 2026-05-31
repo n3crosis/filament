@@ -49,7 +49,7 @@ class Css extends Asset
         return new HtmlString("<link
             href=\"{$html}\"
             rel=\"stylesheet\"
-            " . FilamentAsset::renderCspNonce() . "
+            " . FilamentAsset::renderCspNonce()->toHtml() . "
             data-navigate-track
         />");
     }

@@ -120,7 +120,7 @@ class Js extends Asset
         $defer = $this->isDeferred() ? 'defer' : '';
         $module = $this->isModule() ? 'type="module"' : '';
         $extraAttributesHtml = $this->getExtraAttributesHtml();
-        $cspNonce = FilamentAsset::renderCspNonce();
+        $cspNonce = FilamentAsset::renderCspNonce()->toHtml();
 
         $hasSpaMode = FilamentView::hasSpaMode();
 
