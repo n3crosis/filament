@@ -94,7 +94,14 @@ Content-Security-Policy:
 - `data:` in `font-src` may be needed if you use a custom font with embedded base64 glyphs.
 
 <Aside variant="warning">
-    A CSP without `'unsafe-eval'` will silently break Alpine.js. Every interactive Filament component — dropdowns, modals, form inputs, and more — depends on Alpine. Do not omit `'unsafe-eval'` unless you have replaced Livewire's bundled Alpine with [Alpine's CSP build](https://alpinejs.dev/advanced/csp) and ensured that every `x-data`, `x-on:*`, and expression attribute in Filament's Blade views is compatible with it, which is not supported out of the box.
+    A CSP without `'unsafe-eval'` will silently break Alpine.js. Every interactive Filament component — dropdowns, modals, form inputs, and more — depends on Alpine. Do not omit `'unsafe-eval'`.
+
+    Alpine does ship an alternative CSP-friendly build (`@alpinejs/csp`) that avoids `eval` entirely, but switching to it **does not make Filament CSP-compatible without `'unsafe-eval'`**, because that build drops two features Filament's own Blade views rely on:
+
+    - **HTML Injection (`x-html`)** — The `@alpinejs/csp` build removes the `x-html` directive entirely, but Filament uses it in several core views (e.g. tab badges and column-manager labels).
+    - **Global Variables and Functions** — The `@alpinejs/csp` build isolates expression scope, so Alpine expressions can no longer reference global `window.*` values. Filament's Blade views reference globals such as `window.matchMedia`, `window.tippy`, and `window.Echo` directly inside Alpine attribute expressions.
+
+    Until Filament rewrites these views to remove both patterns, `'unsafe-eval'` remains the only supported option.
 </Aside>
 
 ### Registering assets for a plugin
