@@ -70,7 +70,7 @@ The rendered attribute is empty when no nonce is configured, so the same templat
 
 ### Required CSP directives
 
-Configuring nonces (above) removes the need for `'unsafe-inline'` in `script-src` and `style-src`. However, by default Filament uses Alpine.js v3's standard build (bundled by Livewire), which evaluates reactive expressions using the `Function()` constructor at runtime. The browser blocks those calls under a strict CSP unless **`'unsafe-eval'` is present in `script-src`**.
+Configuring nonces (above) removes the need for `'unsafe-inline'` in `script-src` and covers inline `<style>` **elements** in `style-src`. However, nonces apply only to `<script>` and `<style>` **elements** — they do not cover inline `style="..."` **attributes**. Filament renders some inline style attributes (for example in action modals and certain form components), so your policy must also include `style-src-attr 'unsafe-inline'` to allow those. In addition, by default Filament uses Alpine.js v3's standard build (bundled by Livewire), which evaluates reactive expressions using the `Function()` constructor at runtime. The browser blocks those calls under a strict CSP unless **`'unsafe-eval'` is present in `script-src`**.
 
 A minimal working `Content-Security-Policy` for a Filament panel (using nonces and the standard Alpine build) looks like:
 
@@ -79,6 +79,7 @@ Content-Security-Policy:
   default-src 'self';
   script-src 'self' 'nonce-{random}' 'unsafe-eval';
   style-src 'self' 'nonce-{random}';
+  style-src-attr 'unsafe-inline';
   img-src 'self' data: blob:;
   font-src 'self' data:;
   connect-src 'self' ws: wss:;
@@ -87,6 +88,7 @@ Content-Security-Policy:
 ```
 
 - `'unsafe-eval'` is required for Alpine.js standard build; omitting it will break all interactive Filament components.
+- `style-src-attr 'unsafe-inline'` is required because Filament renders inline `style="..."` attributes that are not covered by nonces.
 - `ws:`/`wss:` in `connect-src` is only needed if you enable Livewire's real-time broadcasting.
 - `blob:` in `img-src` is needed for in-browser file-upload previews.
 - `data:` in `font-src` may be needed if you use a custom font with embedded base64 glyphs.
@@ -102,6 +104,7 @@ Content-Security-Policy:
   default-src 'self';
   script-src 'self' 'nonce-{random}';
   style-src 'self' 'nonce-{random}';
+  style-src-attr 'unsafe-inline';
   img-src 'self' data: blob:;
   font-src 'self' data:;
   connect-src 'self' ws: wss:;
